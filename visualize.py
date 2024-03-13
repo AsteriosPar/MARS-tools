@@ -54,11 +54,11 @@ featuremap_test = np.load("./feature/featuremap_test.npy")
 
 predictions = model.predict(featuremap_test)
 
-for i in range(200):
+for prediction in predictions:
     ax.clear()  # Clear the plot before each iteration
 
     # NOTE: MARS outputs the keypoint coords as [x1, x2, ..., xN, y1, y2, ..., yN, z1, z2, ..., zN]
-    reshaped_data = predictions[i].reshape(3, -1)
+    reshaped_data = prediction.reshape(3, -1)
 
     for connection in connections:
         x_values = [reshaped_data[0][connection[0]], reshaped_data[0][connection[1]]]
