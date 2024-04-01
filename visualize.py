@@ -50,7 +50,7 @@ ax = fig.add_subplot(111, projection="3d")
 
 # Load MARS model
 model = load_model("./model/MARS.h5")
-featuremap_test = np.load("./feature/featuremap_test.npy")
+featuremap_test = np.load("../mmWave_MSc/dataset/formatted/mmWave/testing_mmWave.npy")
 
 predictions = model.predict(featuremap_test)
 
@@ -65,14 +65,14 @@ for prediction in predictions:
         y_values = [reshaped_data[1][connection[0]], reshaped_data[1][connection[1]]]
         z_values = [reshaped_data[2][connection[0]], reshaped_data[2][connection[1]]]
 
-        ax.plot(x_values, y_values, z_values, color="black")
+        ax.plot(x_values, z_values, y_values, color="black")
 
     for keypoint_index in range(len(reshaped_data[0])):
         color = keypoint_colors[keypoint_index]
         ax.scatter(
             reshaped_data[0][keypoint_index],
-            reshaped_data[1][keypoint_index],
             reshaped_data[2][keypoint_index],
+            reshaped_data[1][keypoint_index],
             c=color,
             marker="o",
             s=100 if keypoint_index == 3 else 50,  # Larger size for the head

@@ -36,13 +36,15 @@ os.chdir(path)
 
 
 # load the feature and labels, 24066, 8033, and 7984 frames for train, validate, and test
-featuremap_train = np.load("feature/featuremap_train.npy")
-featuremap_validate = np.load("feature/featuremap_validate.npy")
-featuremap_test = np.load("feature/featuremap_test.npy")
+featuremap_train = np.load("../mmWave_MSc/dataset/formatted/mmWave/training_mmWave.npy")
+featuremap_validate = np.load(
+    "../mmWave_MSc/dataset/formatted/mmWave/validate_mmWave.npy"
+)
+featuremap_test = np.load("../mmWave_MSc/dataset/formatted/mmWave/testing_mmWave.npy")
 
-labels_train = np.load("feature/labels_train.npy")
-labels_validate = np.load("feature/labels_validate.npy")
-labels_test = np.load("feature/labels_test.npy")
+labels_train = np.load("../mmWave_MSc/dataset/formatted/kinect/training_labels.npy")
+labels_validate = np.load("../mmWave_MSc/dataset/formatted/kinect/validate_labels.npy")
+labels_test = np.load("../mmWave_MSc/dataset/formatted/kinect/testing_labels.npy")
 
 # Initialize the result array
 paper_result_list = []
@@ -93,7 +95,7 @@ def define_CNN(in_shape, n_keypoints):
 
 
 # Repeat i iteration to get the average result
-for i in range(10):
+for i in range(1):
     # instantiate the model
     keypoint_model = define_CNN(featuremap_train[0].shape, 57)
     # initial maximum error
