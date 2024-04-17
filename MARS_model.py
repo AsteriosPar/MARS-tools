@@ -95,135 +95,133 @@ def define_CNN(in_shape, n_keypoints):
 
 
 # Repeat i iteration to get the average result
-for i in range(1):
-    # instantiate the model
-    keypoint_model = define_CNN(featuremap_train[0].shape, 57)
-    # initial maximum error
-    score_min = 10
-    history = keypoint_model.fit(
-        featuremap_train,
-        labels_train,
-        batch_size=batch_size,
-        epochs=epochs,
-        verbose=1,
-        validation_data=(featuremap_validate, labels_validate),
-    )
-    # save and print the metrics
-    score_train = keypoint_model.evaluate(featuremap_train, labels_train, verbose=1)
-    print("train MAPE = ", score_train[3])
-    score_test = keypoint_model.evaluate(featuremap_test, labels_test, verbose=1)
-    print("test MAPE = ", score_test[3])
-    result_test = keypoint_model.predict(featuremap_test)
+# for i in range(1):
+# instantiate the model
+keypoint_model = define_CNN(featuremap_train[0].shape, 57)
+# initial maximum error
+score_min = 10
+history = keypoint_model.fit(
+    featuremap_train,
+    labels_train,
+    batch_size=batch_size,
+    epochs=epochs,
+    verbose=1,
+    validation_data=(featuremap_validate, labels_validate),
+)
+# save and print the metrics
+score_train = keypoint_model.evaluate(featuremap_train, labels_train, verbose=1)
+print("train MAPE = ", score_train[3])
+score_test = keypoint_model.evaluate(featuremap_test, labels_test, verbose=1)
+print("test MAPE = ", score_test[3])
+result_test = keypoint_model.predict(featuremap_test)
 
-    # Plot accuracy
-    plt.plot(history.history["mae"])
-    plt.plot(history.history["val_mae"])
-    plt.title("Model accuracy")
-    plt.ylabel("Accuracy")
-    plt.xlabel("Epoch")
-    plt.legend(["Train", "Xval"], loc="upper left")
-    plt.show()
+# Plot accuracy
+plt.plot(history.history["mae"])
+plt.plot(history.history["val_mae"])
+plt.title("Model accuracy")
+plt.ylabel("Accuracy")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Xval"], loc="upper left")
+plt.show()
 
-    # Plot loss
-    plt.plot(history.history["loss"])
-    plt.plot(history.history["val_loss"])
-    plt.title("Model loss")
-    plt.ylabel("Loss")
-    plt.xlabel("Epoch")
-    plt.legend(["Train", "Xval"], loc="upper left")
-    plt.xlim([0, 100])
-    plt.ylim([0, 0.1])
-    plt.show()
+# Plot loss
+plt.plot(history.history["loss"])
+plt.plot(history.history["val_loss"])
+plt.title("Model loss")
+plt.ylabel("Loss")
+plt.xlabel("Epoch")
+plt.legend(["Train", "Xval"], loc="upper left")
+plt.xlim([0, 100])
+plt.ylim([0, 0.1])
+plt.show()
 
-    # error for each axis
-    print(
-        "mae for x is",
-        metrics.mean_absolute_error(labels_test[:, 0:19], result_test[:, 0:19]),
-    )
-    print(
-        "mae for y is",
-        metrics.mean_absolute_error(labels_test[:, 19:38], result_test[:, 19:38]),
-    )
-    print(
-        "mae for z is",
-        metrics.mean_absolute_error(labels_test[:, 38:57], result_test[:, 38:57]),
-    )
+# error for each axis
+print(
+    "mae for x is",
+    metrics.mean_absolute_error(labels_test[:, 0:19], result_test[:, 0:19]),
+)
+print(
+    "mae for y is",
+    metrics.mean_absolute_error(labels_test[:, 19:38], result_test[:, 19:38]),
+)
+print(
+    "mae for z is",
+    metrics.mean_absolute_error(labels_test[:, 38:57], result_test[:, 38:57]),
+)
 
-    # matrix transformation for the final all 19 points mae
-    x_mae = metrics.mean_absolute_error(
-        labels_test[:, 0:19], result_test[:, 0:19], multioutput="raw_values"
-    )
-    y_mae = metrics.mean_absolute_error(
-        labels_test[:, 19:38], result_test[:, 19:38], multioutput="raw_values"
-    )
-    z_mae = metrics.mean_absolute_error(
-        labels_test[:, 38:57], result_test[:, 38:57], multioutput="raw_values"
-    )
+# matrix transformation for the final all 19 points mae
+x_mae = metrics.mean_absolute_error(
+    labels_test[:, 0:19], result_test[:, 0:19], multioutput="raw_values"
+)
+y_mae = metrics.mean_absolute_error(
+    labels_test[:, 19:38], result_test[:, 19:38], multioutput="raw_values"
+)
+z_mae = metrics.mean_absolute_error(
+    labels_test[:, 38:57], result_test[:, 38:57], multioutput="raw_values"
+)
 
-    all_19_points_mae = np.concatenate((x_mae, y_mae, z_mae)).reshape(3, 19)
-    avg_19_points_mae = np.mean(all_19_points_mae, axis=0)
-    avg_19_points_mae_xyz = np.mean(all_19_points_mae, axis=1).reshape(1, 3)
+all_19_points_mae = np.concatenate((x_mae, y_mae, z_mae)).reshape(3, 19)
+avg_19_points_mae = np.mean(all_19_points_mae, axis=0)
+avg_19_points_mae_xyz = np.mean(all_19_points_mae, axis=1).reshape(1, 3)
 
-    all_19_points_mae_Transpose = all_19_points_mae.T
+all_19_points_mae_Transpose = all_19_points_mae.T
 
-    # matrix transformation for the final all 19 points rmse
-    x_rmse = metrics.mean_squared_error(
-        labels_test[:, 0:19],
-        result_test[:, 0:19],
-        multioutput="raw_values",
-        squared=False,
-    )
-    y_rmse = metrics.mean_squared_error(
-        labels_test[:, 19:38],
-        result_test[:, 19:38],
-        multioutput="raw_values",
-        squared=False,
-    )
-    z_rmse = metrics.mean_squared_error(
-        labels_test[:, 38:57],
-        result_test[:, 38:57],
-        multioutput="raw_values",
-        squared=False,
-    )
+# matrix transformation for the final all 19 points rmse
+x_rmse = metrics.mean_squared_error(
+    labels_test[:, 0:19],
+    result_test[:, 0:19],
+    multioutput="raw_values",
+    squared=False,
+)
+y_rmse = metrics.mean_squared_error(
+    labels_test[:, 19:38],
+    result_test[:, 19:38],
+    multioutput="raw_values",
+    squared=False,
+)
+z_rmse = metrics.mean_squared_error(
+    labels_test[:, 38:57],
+    result_test[:, 38:57],
+    multioutput="raw_values",
+    squared=False,
+)
 
-    all_19_points_rmse = np.concatenate((x_rmse, y_rmse, z_rmse)).reshape(3, 19)
-    avg_19_points_rmse = np.mean(all_19_points_rmse, axis=0)
-    avg_19_points_rmse_xyz = np.mean(all_19_points_rmse, axis=1).reshape(1, 3)
+all_19_points_rmse = np.concatenate((x_rmse, y_rmse, z_rmse)).reshape(3, 19)
+avg_19_points_rmse = np.mean(all_19_points_rmse, axis=0)
+avg_19_points_rmse_xyz = np.mean(all_19_points_rmse, axis=1).reshape(1, 3)
 
-    all_19_points_rmse_Transpose = all_19_points_rmse.T
+all_19_points_rmse_Transpose = all_19_points_rmse.T
 
-    # merge the mae and rmse
-    all_19_points_maermse_Transpose = (
-        np.concatenate(
-            (all_19_points_mae_Transpose, all_19_points_rmse_Transpose), axis=1
-        )
-        * 100
-    )
-    avg_19_points_maermse_Transpose = (
-        np.concatenate((avg_19_points_mae_xyz, avg_19_points_rmse_xyz), axis=1) * 100
-    )
+# merge the mae and rmse
+all_19_points_maermse_Transpose = (
+    np.concatenate((all_19_points_mae_Transpose, all_19_points_rmse_Transpose), axis=1)
+    * 100
+)
+avg_19_points_maermse_Transpose = (
+    np.concatenate((avg_19_points_mae_xyz, avg_19_points_rmse_xyz), axis=1) * 100
+)
 
-    # concatenate the array, the final format is the same as shown in paper. First 19 rows each joint, the final row is the average
-    paper_result_maermse = np.concatenate(
-        (all_19_points_maermse_Transpose, avg_19_points_maermse_Transpose), axis=0
-    )
-    paper_result_maermse = np.around(paper_result_maermse, 2)
-    # reorder the columns to make it xmae, xrmse, ymae, yrmse, zmae, zrmse, avgmae, avgrmse
-    paper_result_maermse = paper_result_maermse[:, [0, 3, 1, 4, 2, 5]]
+# concatenate the array, the final format is the same as shown in paper. First 19 rows each joint, the final row is the average
+paper_result_maermse = np.concatenate(
+    (all_19_points_maermse_Transpose, avg_19_points_maermse_Transpose), axis=0
+)
+paper_result_maermse = np.around(paper_result_maermse, 2)
+# reorder the columns to make it xmae, xrmse, ymae, yrmse, zmae, zrmse, avgmae, avgrmse
+paper_result_maermse = paper_result_maermse[:, [0, 3, 1, 4, 2, 5]]
 
-    # append each iterations result
-    paper_result_list.append(paper_result_maermse)
+# append each iterations result
+paper_result_list.append(paper_result_maermse)
 
-    # define the output directory
-    output_direct = "model/"
+# define the output directory
+output_direct = "model/"
 
-    if not os.path.exists(output_direct):
-        os.makedirs(output_direct)
+if not os.path.exists(output_direct):
+    os.makedirs(output_direct)
 
-    # save the best model so far
-    if score_test[1] < score_min:
-        keypoint_model.save(output_direct + "MARS.h5")
-        score_min = score_test[1]
+# save the best model so far
+if score_test[1] < score_min:
+    keypoint_model.save(output_direct + "MARS.h5")
+    score_min = score_test[1]
 
 
 # average the result for all iterations

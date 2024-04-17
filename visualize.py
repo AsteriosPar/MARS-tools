@@ -45,21 +45,9 @@ keypoint_colors = [
     "green",  # FootRight,
     "blue",  # SpineShoulder
 ]
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
 
-# Load MARS model
-model = load_model("./model/MARS.h5")
-featuremap_test = np.load("../mmWave_MSc/dataset/formatted/mmWave/testing_mmWave.npy")
 
-predictions = model.predict(featuremap_test)
-
-for prediction in predictions:
-    ax.clear()  # Clear the plot before each iteration
-
-    # NOTE: MARS outputs the keypoint coords as [x1, x2, ..., xN, y1, y2, ..., yN, z1, z2, ..., zN]
-    reshaped_data = prediction.reshape(3, -1)
-
+def plot_skeleton(reshaped_data, ax, color_default=True):
     for connection in connections:
         x_values = [reshaped_data[0][connection[0]], reshaped_data[0][connection[1]]]
         y_values = [reshaped_data[1][connection[0]], reshaped_data[1][connection[1]]]
@@ -68,7 +56,11 @@ for prediction in predictions:
         ax.plot(x_values, z_values, y_values, color="black")
 
     for keypoint_index in range(len(reshaped_data[0])):
-        color = keypoint_colors[keypoint_index]
+        if color_default:
+            color = keypoint_colors[keypoint_index]
+        else:
+            color = "gray"
+
         ax.scatter(
             reshaped_data[0][keypoint_index],
             reshaped_data[2][keypoint_index],
@@ -78,9 +70,33 @@ for prediction in predictions:
             s=100 if keypoint_index == 3 else 50,  # Larger size for the head
         )
 
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+
+# Load MARS model
+model = load_model("./model/MARS.h5")
+
+# Add your own path of the testing data and labels
+featuremap_test = np.load("../mmWave_MSc/dataset/formatted/mmWave/testing_mmWave.npy")
+ground_truth = np.load("../mmWave_MSc/dataset/formatted/kinect/testing_labels.npy")
+
+predictions = model.predict(featuremap_test)
+
+for predict_num, prediction in enumerate(predictions):
+    ax.clear()  # Clear the plot before each iteration
+
+    # NOTE: MARS outputs the keypoint coords as [x1, x2, ..., xN, z1, z2, ..., zN, y1, y2, ..., yN]
+    reshaped_data = prediction.reshape(3, -1)
+    plot_skeleton(reshaped_data, ax)
+
+    # GROUND TRUTH (in grey)
+    reshaped_ground_truth = ground_truth[predict_num].reshape(3, -1)
+    plot_skeleton(reshaped_ground_truth, ax, False)
+
     # Set fixed axis scales
     ax.set_xlim(-2, 2)
-    ax.set_ylim(-2, 2)
+    ax.set_ylim(0, 4)
     ax.set_zlim(0, 3)
 
     plt.draw()
